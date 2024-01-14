@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
 import IUser from "../types/user";
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -51,10 +51,16 @@ const userSchema = new mongoose.Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.pre("save" , async function ():Promise<any> {
-  const salt = await bcrypt.genSalt(10); 
-  this.password = await bcrypt.hash(this.password , salt)
-})
+userSchema.pre("save", async function (): Promise<any> {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+userSchema.methods.comparePassword = async function (
+  password: string
+): Promise<any> {
+  return await bcrypt.compare(password , this.password);
+};
 
 const User = mongoose.model("users", userSchema);
 

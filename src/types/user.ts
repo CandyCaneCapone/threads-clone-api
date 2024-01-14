@@ -9,6 +9,7 @@ interface IUser extends mongoose.Document {
   followers: ObjectId[];
   following: ObjectId[];
   profilePic: string;
+  comparePassword (password : string) : Promise<any>
 }
 
 export default IUser;
