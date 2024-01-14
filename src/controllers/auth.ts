@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import IUser from "../types/user";
-import UnAuthenticatedError from "../errors/unauthenticated";
-import BadRequestError from "../errors/bad-request";
+import {UnAuthenticatedError , BadRequestError} from "../errors"
 import generateTokenAndSetCookie from "../utils/set-token";
 
 const signup = async (

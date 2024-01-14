@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import NotFoundError from "../errors/not-found";
 import mongoose from "mongoose";
-import UnAuthenticatedError from "../errors/unauthenticated";
-import BadRequestError from "../errors/bad-request";
+import {
+  NotFoundError,
+  UnAuthenticatedError,
+  BadRequestError,
+} from "../errors";
 
 const errorHandler = (
   err: Error,
