@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import IUser from "../types/user";
-import {UnAuthenticatedError , BadRequestError} from "../errors"
+import { UnAuthenticatedError, BadRequestError } from "../errors";
 import generateTokenAndSetCookie from "../utils/set-token";
 
 const signup = async (
@@ -58,4 +58,13 @@ const login = async (
   }
 };
 
-export { signup, login };
+const logout = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.clearCookie("jwt");
+    res.json({ message: "Logout successful" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { signup, login , logout};
