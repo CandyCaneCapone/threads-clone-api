@@ -5,6 +5,6 @@ import protectRoute from "../middlewares/protect-route";
 const router : Router = Router()
 
 router.use("/auth" , authRouter)
-router.use("/user" , protectRoute ,userRouter)
+router.use("/users" , protectRoute ,userRouter)
 
 export default router ; 

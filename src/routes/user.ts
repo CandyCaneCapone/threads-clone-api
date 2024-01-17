@@ -4,5 +4,6 @@ const userRouter : Router = Router()
 import * as controller from "../controllers/user"
 
 userRouter.get("/profile" , controller.getProfile)
+userRouter.get("/user" , controller.getOthersProfile)
 
 export default userRouter ; 
