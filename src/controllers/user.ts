@@ -5,6 +5,9 @@ import IUser from "../types/user";
 import AuthenticatedRequest from "../types/auth-req";
 import mongoose, { Types } from "mongoose";
 import { BadRequestError, NotFoundError } from "../errors";
+import { promises as fs } from "fs";
+import { v2 as cloudinary } from "cloudinary";
+import getPublicIdFromUrl from "../utils/extract-public-id";
 
 const getProfile = async (
   req: AuthenticatedRequest,
@@ -40,17 +43,33 @@ const editProfile = async (
     }
 
     const user = req.user!;
-    
+
+    if (req.file) {
+      if (user.profilePic) {
+        // Delete the old profile picture from Cloudinary
+        await cloudinary.uploader.destroy(getPublicIdFromUrl(user.profilePic));
+        console.log(user.profilePic);
+      }
+      // Upload the new profile picture in Cloudinary
+      const uploadedProfilePic = await cloudinary.uploader.upload(
+        req.file.path
+      );
+      user.profilePic = uploadedProfilePic.secure_url;
+
+      // Delete image from local file storage
+      await fs.unlink(req.file?.path);
+    }
+
     // Update user properties with the new values if they exist in the request body
-    user.name = name || user.name 
-    user.username = username || user.username
-    user.email = email || user.email 
-    user.password = password || user.password
-    user.bio = bio || user.bio
+    user.name = name || user.name;
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.password = password || user.password;
+    user.bio = bio || user.bio;
 
-    await user.save()
+    await user.save();
 
-    res.json({user : req.user});
+    res.json({ user: req.user });
   } catch (error) {
     next(error);
   }
@@ -140,4 +159,4 @@ const followUnFollowUser = async (
   }
 };
 
-export { getProfile, getOthersProfile, followUnFollowUser , editProfile };
+export { getProfile, getOthersProfile, followUnFollowUser, editProfile };

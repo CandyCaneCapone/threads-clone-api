@@ -47,6 +47,9 @@ const userSchema = new mongoose.Schema<IUser>(
         ref: "users",
       },
     ],
+    profilePic : {
+      type : String 
+    }
   },
   { timestamps: true }
 );
