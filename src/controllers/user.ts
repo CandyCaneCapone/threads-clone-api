@@ -3,7 +3,7 @@ import User from "../models/user";
 import IUser from "../types/user";
 
 import AuthenticatedRequest from "../types/auth-req";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { BadRequestError, NotFoundError } from "../errors";
 
 const getProfile = async (
@@ -12,6 +12,7 @@ const getProfile = async (
   next: NextFunction
 ): Promise<any> => {
   try {
+    // Find the user by their ID, excluding the password field
     const userId: string | null = req.user!._id;
     const user: IUser = await User.findById(userId).select("-password");
 
@@ -31,9 +32,11 @@ const getOthersProfile = async (
     let user = null;
 
     if (typeof query == "string") {
+      // If 'query' is a valid ObjectId, find the user by ID
       if (mongoose.Types.ObjectId.isValid(query)) {
         user = await User.findById(query).select("-password -email -updatedAt");
       } else {
+        // If 'query' is not a valid ObjectId, find the user by username
         user = await User.findOne({ username: query }).select(
           "-password -email -updatedAt"
         );
@@ -65,14 +68,21 @@ const followUnFollowUser = async (
       throw new NotFoundError("user not found");
     }
 
+    // Check if the user is trying to follow/unfollow themselves
     if (userToModify._id.toString() === currentUser._id.toString()) {
-      throw new BadRequestError("you cannot follow or unfollow yourself")
+      throw new BadRequestError("you cannot follow or unfollow yourself");
     }
 
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    const isFollowing = currentUser.following.includes(userObjectId as any);
+    // Convert string to objectId
+    const userObjectId: Types.ObjectId = new Types.ObjectId(userId);
+
+    // Check if the current user is already following the target user
+    const isFollowing: boolean = currentUser.following.includes(
+      userObjectId as any
+    );
 
     if (isFollowing) {
+      // If already following, unfollow the user
       await User.findByIdAndUpdate(currentUser._id, {
         $pull: { following: userObjectId },
       });
@@ -82,6 +92,7 @@ const followUnFollowUser = async (
 
       res.json({ message: "user unfollowed successfully" });
     } else {
+      // If not following, follow the user
       await User.findByIdAndUpdate(currentUser?._id, {
         $push: { following: userObjectId },
       });
@@ -89,11 +100,11 @@ const followUnFollowUser = async (
         $push: { followers: currentUser._id },
       });
       res.json({ message: "User followed successfully" });
-
+      
     }
   } catch (error) {
     next(error);
   }
 };
 
-export { getProfile, getOthersProfile , followUnFollowUser};
+export { getProfile, getOthersProfile, followUnFollowUser };
