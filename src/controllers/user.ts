@@ -22,6 +22,40 @@ const getProfile = async (
   }
 };
 
+const editProfile = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  try {
+    const { name, username, email, password, bio } = req.body;
+
+    // Check if a user with the provided username or email already exists
+    const usernameOrEmailAlreadyExists: IUser | null = await User.findOne({
+      $or: [{ username }, { email }],
+    });
+
+    if (usernameOrEmailAlreadyExists) {
+      throw new BadRequestError("email or username already exist");
+    }
+
+    const user = req.user!;
+    
+    // Update user properties with the new values if they exist in the request body
+    user.name = name || user.name 
+    user.username = username || user.username
+    user.email = email || user.email 
+    user.password = password || user.password
+    user.bio = bio || user.bio
+
+    await user.save()
+
+    res.json({user : req.user});
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getOthersProfile = async (
   req: Request,
   res: Response,
@@ -100,11 +134,10 @@ const followUnFollowUser = async (
         $push: { followers: currentUser._id },
       });
       res.json({ message: "User followed successfully" });
-      
     }
   } catch (error) {
     next(error);
   }
 };
 
-export { getProfile, getOthersProfile, followUnFollowUser };
+export { getProfile, getOthersProfile, followUnFollowUser , editProfile };

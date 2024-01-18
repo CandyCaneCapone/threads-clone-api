@@ -6,5 +6,6 @@ import * as controller from "../controllers/user"
 userRouter.get("/profile" , controller.getProfile)
 userRouter.get("/user" , controller.getOthersProfile)
 userRouter.post("/follow/:id" , controller.followUnFollowUser)
+userRouter.patch("/edit" , controller.editProfile)
 
 export default userRouter ; 
