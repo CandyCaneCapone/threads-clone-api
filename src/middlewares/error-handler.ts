@@ -36,6 +36,10 @@ const errorHandler = (
     statusCode = err.statusCode;
   }
 
+  if (err instanceof mongoose.Error.CastError) {
+    message = `no resource found with id ${err.value}`
+    statusCode = 404
+  }
   console.log(err);
 
   res.status(statusCode).json({
